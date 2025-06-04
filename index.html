@@ -4,15 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Un jueguito :)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <title>Un jueguito</title>
 </head>
 <body>
-    <div id="messages"></div>
+    <div id="background"></div>
 
     <div id="messages"></div>
+
+    <div id="bear">
+        <img class="bear-img" src="bear.png" alt="">
+    </div>
+
+    <div id="help">
+        <i class="fa-solid fa-question"></i>
+    </div>
+    
+    <button id="optionstoggle">up</button>
+    
+    <div id="options">
+        <div id="places">
+            <button id="home">Casa</button>
+            <button id="market">Supermercado</button>
+        </div>
+
+        <div id="activities">
+            <button id="walk">Salir al caminar</button>
+            <button id="read">Leer un libro</button>
+            <button id="paint">Pintar</button>
+            <button id="listen">Escuchar musica</button>
+            <button id="park">Ir al parque de diversiones</button>
+        </div>
+    </div>
 
     <script>
+
+        let hunger;
+        let health;
+        let fun;
+        let money;
+        let currentPlace;
+
+        let utilities = [
+            {
+                id: 1,
+                name: "medkit"
+            }
+        ]
+
+        let places = [
+            {
+                id: 1,
+                name: "Casa",
+                img: "url(backgrounds/home.png)"
+            },
+            {
+                id: 2,
+                name: "Supermercado",
+                img: "url(backgrounds/market.png)"
+            },
+            {
+                id: 3,
+                name: "Parque",
+                img: ""
+            },
+            {
+                id: 4,
+                name: "Parque de diversiones",
+                img: ""
+            },
+        ]
+
+        let activities = [
+            {
+                id: 1,
+                name: "Salir a caminar",
+                price: "0",
+                replenish: "40",
+                time: 20
+            },
+            {
+                id: 2,
+                name: "Leer un libro",
+                price: "10",
+                replenish: "50",
+                time: 25
+            },
+            {
+                id: 3,
+                name: "Pintar",
+                price: "15",
+                replenish: "60",
+                time: 15
+            },
+            {
+                id: 4,
+                name: "Escuchar Musica",
+                price: "15",
+                replenish: "60",
+                time: 20
+            },
+            {
+                id: 5,
+                name: "Parque de diversiones",
+                price: "70",
+                replenish: "100",
+                time: 30
+            },
+        ]
+
+        let food = [
+            {
+                id: 1,
+                name: "Papas Fritas",
+                price: "20",
+                replenish: "20"
+            },
+            {
+                id: 2,
+                name: "Hamburguesa",
+                price: "40",
+                replenish: "35"
+            },
+            {
+                id: 3,
+                name: "Carne Molida",
+                price: "30",
+                replenish: "25"
+            },
+            {
+                id: 4,
+                name: "Ensalada",
+                price: "10",
+                replenish: "10"
+            },
+            {
+                id: 5,
+                name: "Pastel de caramelo",
+                price: "70",
+                replenish: "55"
+            },
+            {
+                id: 6,
+                name: "Helado de chocolate",
+                price: "25",
+                replenish: "22"
+            },
+            {
+                id: 7,
+                name: "Taco de carne molida",
+                price: "50",
+                replenish: "40"
+            },
+        ]
+
         window.onload = function() {
+            
+            document.getElementById('bear').style.display='none';
+            document.getElementById('options').style.display='none';
+            document.getElementById('bear').style.display='none';
+
             const message = document.getElementById("messages");
             message.innerHTML = "<h1> Holiiiiii </h1>"
             setTimeout(() => {
@@ -21,11 +172,55 @@
                     message.innerHTML = "";
                     message.style.display = "none";
                     start()
-                }, 3500);
-            }, 2000);
+                }, 35);
+            }, 20);
         };
 
         function start(){
+
+            hunger = 0;
+            health = 100;
+            fun = 100;
+            money = 50;
+            currentPlace = 'home';
+
+            document.getElementById('bear').style.display = "block";
+            document.getElementById('background').style.backgroundImage = places[0].img;
+
+            let gameInterval = setInterval(() => {
+                if (hunger >= 100) {
+                    health -= 3;
+                } else {
+                    hunger += 0.5;
+                };
+
+                fun -= 1;
+
+                console.log("hunger " + hunger);
+                console.log("health " + health);
+                console.log("fun " + fun);
+                
+            }, 10000);
+
+            document.getElementById('home').addEventListener("click", function(){
+                currentPlace = 'home';
+                document.getElementById('background').style.backgroundImage = places[0].img;
+            });
+
+            document.getElementById('market').addEventListener("click", function(){
+                currentPlace = 'market';
+                openMarket();
+                document.getElementById('background').style.backgroundImage = places[1].img;
+            });
+
+            document.getElementById('optionstoggle').addEventListener("click", function(){
+                currentPlace = 'market';
+                document.getElementById('options').style.display='block';
+            });
+            
+        }
+
+        function openMarket(){
 
         }
     </script>

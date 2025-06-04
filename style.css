@@ -4,13 +4,48 @@
 
 body{
     background-color: rgb(255, 106, 151);
-    
-}
-
-#messages{
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100dvw;
     height: 100dvh;
+}
+
+#background{
+    position: absolute;
+    background-size: auto;
+    background-position: bottom;
+    bottom: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    z-index: -1;
+}
+
+#help{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+#bear{
+   z-index: -2;
+}
+
+#optionstoggle{
+    position: absolute;
+    bottom: 0;
+    left: 50;
+    z-index: 9;
+}
+
+#options{
+    position: absolute;
+    bottom: 0;
+    left: 50;
+    z-index: 9;
+}
+
+.bear-img{
+    width: 30dvw;
 }
