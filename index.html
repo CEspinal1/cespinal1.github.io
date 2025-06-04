@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Un jueguito :)</title>
+</head>
+<body>
+    <div id="messages"></div>
+
+    <div id="messages"></div>
+
+    <script>
+        window.onload = function() {
+            const message = document.getElementById("messages");
+            message.innerHTML = "<h1> Holiiiiii </h1>"
+            setTimeout(() => {
+                message.innerHTML = "<h1> Te dedico este jueguito. Espero que te guste ;D </h1>"
+                setTimeout(() => {
+                    message.innerHTML = "";
+                    message.style.display = "none";
+                    start()
+                }, 3500);
+            }, 2000);
+        };
+
+        function start(){
+
+        }
+    </script>
+</body>
+</html>
