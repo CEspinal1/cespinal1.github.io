@@ -1,9 +1,9 @@
-*{
+* {
     margin: 0;
     box-sizing: border-box;
 }
 
-body{
+body {
     background-color: rgb(255, 106, 151);
     display: flex;
     justify-content: center;
@@ -11,107 +11,314 @@ body{
     width: 100dvw;
     height: 100dvh;
     overflow: hidden;
+    font-family: sans-serif;
 }
 
-#background{
+
+#game-container {
     position: absolute;
-    background-size: cover;
-    background-position: bottom;
-    bottom: 0;
+    overflow: hidden;
+    transform-origin: 0 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Base elements within the game container should use percentages or fixed values relative to the container */
+
+#background {
+    position: absolute;
+    top: 0;
     left: 0;
-    width: 100dvw;
-    height: 100dvh;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center bottom;
     z-index: -1;
 }
 
-#help{
+#messages {
     position: absolute;
-    bottom: 0;
-    right: 1dvw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+    z-index: 10;
+}
+
+
+#help {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
     font-size: 30px;
+    color: #333;
+    cursor: pointer;
+    z-index: 10;
 }
 
-#bear{
-    z-index: -2;
-}
-
-#speakers{
+#speakers {
     position: absolute;
-    bottom: 10dvh;
-    right: 10dvw;
+    bottom: 90px;
+    right: 100px;
     border-radius: 10px;
+    cursor: pointer;
+    z-index: 5;
 }
 
-#speakers:hover{
-   background-color: rgba(141, 141, 141, 0.5);
+#speakers:hover {
+    background-color: rgba(141, 141, 141, 0.5);
 }
 
-#speakersimg{
-   height: 20dvh;
+#speakersimg {
+    height: 250px;
+    width: auto;
+    display: block;
 }
 
-#books{
+#books {
     position: absolute;
-    bottom: 27dvh;
-    left: 35dvw;
+    bottom: 190px;
+    left: 450px;
     border-radius: 10px;
+    cursor: pointer;
+    z-index: 5;
+    
 }
 
-#books:hover{
-   background-color: rgba(141, 141, 141, 0.5);
+#books:hover {
+    background-color: rgba(141, 141, 141, 0.5);
 }
 
-#booksimg{
-   height: 20dvh;
+#booksimg {
+    height: 120px;
+    width: auto;
+    display: block;
+}
+
+#bear {
+    position: absolute;
+    bottom: 370px;
+    left: 60%;
+    transform: translateX(-50%);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#bear:hover {
+    background-color: rgba(135, 80, 145, 0.5);
+}
+
+.bear-img {
+    width: 250px;
+    height: auto;
+    display: block;
 }
 
 #optionstoggle {
     position: absolute;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 9;
     border-radius: 10px 10px 0px 0px;
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
-    height: 30px;
-    width: 110px;
+    height: 50px;
+    width: 120px;
     border: none;
     font-size: 20px;
     background-color: rgb(255, 255, 255);
     display: flex;
     justify-content: center;
     align-items: center;
-
+    color: #333;
 }
 
 #optionstoggle.toggled-on {
-    transform: translateY(-160px);
+    transform: translateY(-160px) translateX(-50%);
 }
 
-#options{
+#options {
     position: absolute;
     bottom: -160px;
-    z-index: 9;
-    transition: transform 0.3s ease-in-out;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 8;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
     height: 160px;
-    background-color: rgb(255, 255, 255);
+    width: 300px;
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     padding: 10px;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+    overflow: scroll;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 #options.toggled-on {
-    transform: translateY(-160px);
+    transform: translateY(-160px) translateX(-50%);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
-.bear-img{
-    width: 30dvw;
+#places,
+#activities {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
 }
 
-#musicmenu{
+#places h3, #activities h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+#places button,
+#activities button {
+    display: block;
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px auto;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#places button:hover,
+#activities button:hover {
+    background-color: #0056b3;
+}
+
+#musicmenu {
+    position: absolute;
+    bottom: 300px;
+    right: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 100px;
-    background-color: black;
+    align-items: center;
+    height: 120px;
+    width: 300px;
+    background-color: rgba(39, 39, 39, 0.9);
     padding: 10px;
     border-radius: 10px;
+    gap: 5px;
+    z-index: 10;
+    color: white;
+    font-size: 14px;
+}
+
+#musicmenu button {
+    width: 90%;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    background-color: #666;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#musicmenu button:hover {
+    background-color: #888;
+}
+
+#stats-container {
+    position: absolute;
+    top: 28%;
+    left: 53%;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    color: white;
+    font-family: sans-serif;
+    font-size: 1.2em;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+
+#bear:hover + #stats-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+.stat-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 250px;
+}
+
+.stat-label {
+    min-width: 80px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.stat-bar {
+    width: 120px;
+    height: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #555;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.stat-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease-out;
+}
+
+#hunger-bar .stat-fill {
+    background-color: orange;
+}
+#health-bar .stat-fill {
+    background-color: limegreen;
+}
+#fun-bar .stat-fill {
+    background-color: dodgerblue;
+}
+
+#health-bar.low .stat-fill {
+    background-color: red;
+}
+#hunger-bar.high .stat-fill {
+    background-color: red;
+}
+
+
+.stat-value {
+    min-width: 50px;
+    text-align: left;
+}
+
+#money-display {
+    margin-top: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.4em;
+    padding-top: 5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }

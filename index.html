@@ -9,50 +9,149 @@
     <title>Un jueguito</title>
 </head>
 <body>
-    <button id="playButton">Play Sound</button>
-    <button id="pauseButton">Pause Sound</button>
-    <button id="volumeUpButton">Volume Up</button>
-    <button id="volumeDownButton">Volume Down</button>
+    <div id="game-container">
+        <button id="playButton">Play Sound</button>
+        <button id="pauseButton">Pause Sound</button>
+        <button id="volumeUpButton">Volume Up</button>
+        <button id="volumeDownButton">Volume Down</button>
 
 
 
-    <div id="background"></div>
+        <div id="background"></div>
 
-    <div id="messages"></div>
+        <div id="messages"></div>
 
-    <div id="bear">
-        <img class="bear-img" src="bear.png" alt="">
-    </div>
-
-    <div id="help">
-        <i class="fa-solid fa-question"></i>
-    </div>
-    
-    <button id="optionstoggle"><i class="fa-solid fa-arrows-up-down"></i></button>
-    
-    <div id="options">
-        <div id="places">
-            <button id="home">Casa</button>
-            <button id="market">Supermercado</button>
+        <div id="bear">
+            <img class="bear-img" src="bear.png" alt="">
         </div>
 
-        <div id="activities">
-            <button id="walk">Salir al caminar</button>
-            <button id="paint">Pintar</button>
-            <button id="park">Ir al parque de diversiones</button>
+        <div id="stats-container">
+            <div class="stat-bar-wrapper">
+                <span class="stat-label">Hambre:</span>
+                <div id="hunger-bar" class="stat-bar">
+                    <div class="stat-fill" style="background-color: orange;"></div>
+                </div>
+                <span id="hunger-value" class="stat-value">0%</span>
+            </div>
+
+            <div class="stat-bar-wrapper">
+                <span class="stat-label">Salud:</span>
+                <div id="health-bar" class="stat-bar">
+                    <div class="stat-fill" style="background-color: limegreen;"></div>
+                </div>
+                <span id="health-value" class="stat-value">100%</span>
+            </div>
+
+            <div class="stat-bar-wrapper">
+                <span class="stat-label">Diversión:</span>
+                <div id="fun-bar" class="stat-bar">
+                    <div class="stat-fill" style="background-color: dodgerblue;"></div>
+                </div>
+                <span id="fun-value" class="stat-value">100%</span>
+            </div>
+
+            <div id="money-display" class="stat-text">
+                Dinero: $<span id="money-value">50</span>
+            </div>
         </div>
+
+        <div id="help">
+            <i class="fa-solid fa-question"></i>
+        </div>
+        
+        <button id="optionstoggle"><i class="fa-solid fa-arrows-up-down"></i></button>
+        
+        <div id="options">
+            <div id="places">
+                <button id="home">Casa</button>
+                <button id="market">Supermercado</button>
+            </div>
+
+            <div id="activities">
+                <button id="walk">Salir al caminar</button>
+                <button id="paint">Pintar</button>
+                <button id="park">Ir al parque de diversiones</button>
+            </div>
+        </div>
+
+        <div id="speakers"><img id="speakersimg" src="./house_items/speakers.png" alt="speakers"></div>
+            <div id="musicmenu" style="display: none;">
+                <button>Shakira-Antología</button>
+                <button>Sherine-Kalam Eineh</button>
+                <button>Some boys take a beautiful girl and hide her away</button>
+            </div>
+
+        <div id="books"><img id="booksimg" src="./house_items/books.png" alt="books"></div>
     </div>
-
-    <div id="speakers"><img id="speakersimg" src="./house_items/speakers.png" alt="speakers"></div>
-        <div id="musicmenu" style="display: none;">
-            <button>Shakira-Antología</button>
-            <button>Sherine-Kalam Eineh</button>
-            <button>Some boys take a beautiful girl and hide her away</button>
-        </div>
-
-    <div id="books"><img id="booksimg" src="./house_items/books.png" alt="books"></div>
-
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameContainer = document.getElementById('game-container');
+            const designWidth = 1920; // Your chosen design width
+            const designHeight = 1080; // Your chosen design height
+
+            function scaleGame() {
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                const scaleX = viewportWidth / designWidth;
+                const scaleY = viewportHeight / designHeight;
+
+                const scaleFactor = Math.min(scaleX, scaleY);
+
+                gameContainer.style.transform = `scale(${scaleFactor})`;
+
+                const scaledWidth = designWidth * scaleFactor;
+                const scaledHeight = designHeight * scaleFactor;
+
+                gameContainer.style.width = `${designWidth}px`;
+                gameContainer.style.height = `${designHeight}px`;
+
+                gameContainer.style.position = 'absolute';
+                gameContainer.style.left = `${(viewportWidth - scaledWidth) / 2}px`;
+                gameContainer.style.top = `${(viewportHeight - scaledHeight) / 2}px`;
+            }
+
+            scaleGame();
+
+            window.addEventListener('resize', scaleGame);
+        });
+
+        const hungerFill = document.querySelector('#hunger-bar .stat-fill');
+            const healthFill = document.querySelector('#health-bar .stat-fill');
+            const funFill = document.querySelector('#fun-bar .stat-fill');
+
+            const hungerValueDisplay = document.getElementById('hunger-value');
+            const healthValueDisplay = document.getElementById('health-value');
+            const funValueDisplay = document.getElementById('fun-value');
+            const moneyValueDisplay = document.getElementById('money-value');
+
+            function updateStatsDisplay() {
+                hunger = Math.max(0, Math.min(100, hunger));
+                health = Math.max(0, Math.min(100, health));
+                fun = Math.max(0, Math.min(100, fun));
+                money = Math.max(0, money);
+
+                hungerFill.style.width = `${hunger}%`;
+                healthFill.style.width = `${health}%`;
+                funFill.style.width = `${fun}%`;
+
+                hungerValueDisplay.textContent = `${Math.round(hunger)}%`;
+                healthValueDisplay.textContent = `${Math.round(health)}%`;
+                funValueDisplay.textContent = `${Math.round(fun)}%`;
+                moneyValueDisplay.textContent = `${Math.round(money)}`;
+
+                if (health < 20) {
+                    document.getElementById('health-bar').classList.add('low');
+                } else {
+                    document.getElementById('health-bar').classList.remove('low');
+                }
+
+                if (hunger > 80) {
+                    document.getElementById('hunger-bar').classList.add('high');
+                } else {
+                    document.getElementById('hunger-bar').classList.remove('high');
+                }
+            }
 
         let hunger;
         let health;
@@ -196,6 +295,7 @@
             fun = 100;
             money = 50;
             currentPlace = 'home';
+            updateStatsDisplay() 
 
             document.getElementById('bear').style.display = "block";
             document.getElementById('background').style.backgroundImage = places[0].img;
@@ -207,11 +307,14 @@
                     hunger += 0.5;
                 };
 
-                fun -= 1;
+                if (fun <= 0) {
+                    hunger += 1;
+                } else {
+                    fun -= 1;
 
-                console.log("hunger " + hunger);
-                console.log("health " + health);
-                console.log("fun " + fun);
+                }
+
+                updateStatsDisplay();
                 
             }, 10000);
 
@@ -237,6 +340,12 @@
 
             document.getElementById('speakers').addEventListener("click", function(){
                 document.getElementById('musicmenu').style.display = "flex"
+            });
+
+            document.getElementById('books').addEventListener('click', () => {
+                fun += activities[1].replenish;
+                money -= activities[1].price;
+                updateStatsDisplay();
             });
             
         }
