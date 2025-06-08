@@ -1,5 +1,6 @@
 *{
     margin: 0;
+    box-sizing: border-box;
 }
 
 body{
@@ -9,11 +10,12 @@ body{
     align-items: center;
     width: 100dvw;
     height: 100dvh;
+    overflow: hidden;
 }
 
 #background{
     position: absolute;
-    background-size: auto;
+    background-size: cover;
     background-position: bottom;
     bottom: 0;
     left: 0;
@@ -25,27 +27,91 @@ body{
 #help{
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 1dvw;
+    font-size: 30px;
 }
 
 #bear{
-   z-index: -2;
+    z-index: -2;
 }
 
-#optionstoggle{
+#speakers{
+    position: absolute;
+    bottom: 10dvh;
+    right: 10dvw;
+    border-radius: 10px;
+}
+
+#speakers:hover{
+   background-color: rgba(141, 141, 141, 0.5);
+}
+
+#speakersimg{
+   height: 20dvh;
+}
+
+#books{
+    position: absolute;
+    bottom: 27dvh;
+    left: 35dvw;
+    border-radius: 10px;
+}
+
+#books:hover{
+   background-color: rgba(141, 141, 141, 0.5);
+}
+
+#booksimg{
+   height: 20dvh;
+}
+
+#optionstoggle {
     position: absolute;
     bottom: 0;
-    left: 50;
     z-index: 9;
+    border-radius: 10px 10px 0px 0px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    height: 30px;
+    width: 110px;
+    border: none;
+    font-size: 20px;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#optionstoggle.toggled-on {
+    transform: translateY(-160px);
 }
 
 #options{
     position: absolute;
-    bottom: 0;
-    left: 50;
+    bottom: -160px;
     z-index: 9;
+    transition: transform 0.3s ease-in-out;
+    height: 160px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#options.toggled-on {
+    transform: translateY(-160px);
 }
 
 .bear-img{
     width: 30dvw;
+}
+
+#musicmenu{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100px;
+    background-color: black;
+    padding: 10px;
+    border-radius: 10px;
 }

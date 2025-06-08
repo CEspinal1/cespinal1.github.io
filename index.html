@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="shortcut icon" href="./favicon/favicon.ico" type="image/x-icon">
     <title>Un jueguito</title>
 </head>
 <body>
+    <button id="playButton">Play Sound</button>
+    <button id="pauseButton">Pause Sound</button>
+    <button id="volumeUpButton">Volume Up</button>
+    <button id="volumeDownButton">Volume Down</button>
+
+
+
     <div id="background"></div>
 
     <div id="messages"></div>
@@ -20,7 +28,7 @@
         <i class="fa-solid fa-question"></i>
     </div>
     
-    <button id="optionstoggle">up</button>
+    <button id="optionstoggle"><i class="fa-solid fa-arrows-up-down"></i></button>
     
     <div id="options">
         <div id="places">
@@ -30,12 +38,19 @@
 
         <div id="activities">
             <button id="walk">Salir al caminar</button>
-            <button id="read">Leer un libro</button>
             <button id="paint">Pintar</button>
-            <button id="listen">Escuchar musica</button>
             <button id="park">Ir al parque de diversiones</button>
         </div>
     </div>
+
+    <div id="speakers"><img id="speakersimg" src="./house_items/speakers.png" alt="speakers"></div>
+        <div id="musicmenu" style="display: none;">
+            <button>Shakira-Antología</button>
+            <button>Sherine-Kalam Eineh</button>
+            <button>Some boys take a beautiful girl and hide her away</button>
+        </div>
+
+    <div id="books"><img id="booksimg" src="./house_items/books.png" alt="books"></div>
 
     <script>
 
@@ -161,8 +176,6 @@
         window.onload = function() {
             
             document.getElementById('bear').style.display='none';
-            document.getElementById('options').style.display='none';
-            document.getElementById('bear').style.display='none';
 
             const message = document.getElementById("messages");
             message.innerHTML = "<h1> Holiiiiii </h1>"
@@ -214,8 +227,16 @@
             });
 
             document.getElementById('optionstoggle').addEventListener("click", function(){
-                currentPlace = 'market';
-                document.getElementById('options').style.display='block';
+                document.getElementById('optionstoggle').classList.toggle('toggled-on');
+                document.getElementById('options').classList.toggle('toggled-on');
+            });
+
+
+
+
+
+            document.getElementById('speakers').addEventListener("click", function(){
+                document.getElementById('musicmenu').style.display = "flex"
             });
             
         }
