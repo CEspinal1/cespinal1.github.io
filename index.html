@@ -10,14 +10,11 @@
 </head>
 <body>
     <div id="game-container">
-        <button id="playButton">Play Sound</button>
-        <button id="pauseButton">Pause Sound</button>
-        <button id="volumeUpButton">Volume Up</button>
-        <button id="volumeDownButton">Volume Down</button>
 
-
+        <button id="sleep">Dormir</button>
 
         <div id="background"></div>
+        <div id="background-overlay"></div>
 
         <div id="messages"></div>
 
@@ -64,30 +61,44 @@
         <div id="options">
             <div id="places">
                 <button id="home">Casa</button>
-                <button id="market">Supermercado</button>
             </div>
 
-            <div id="activities">
-                <button id="walk">Salir al caminar</button>
-                <button id="paint">Pintar</button>
-                <button id="park">Ir al parque de diversiones</button>
-            </div>
         </div>
 
         <div id="speakers"><img id="speakersimg" src="./house_items/speakers.png" alt="speakers"></div>
-            <div id="musicmenu" style="display: none;">
-                <button>Shakira-Antología</button>
-                <button>Sherine-Kalam Eineh</button>
-                <button>Some boys take a beautiful girl and hide her away</button>
+            <div id="musicmenu">
+                <button id="shakiraAntologiaBtn">Shakira - Antología</button>
+                <button id="sherineKalamEinehBtn">Sherine - Kalam Eineh</button>
+                <button id="someBoysBtn">Some boys take a beautiful girl and hide her away</button>
             </div>
 
         <div id="books"><img id="booksimg" src="./house_items/books.png" alt="books"></div>
+        <div id="inventory"><img id="boximg" src="./house_items/box.png" alt="box"></div>
+            <div id="inventorymenu">
+
+            </div>
+        <div id="paint"><img id="paintimg" src="./house_items/art_items/trophy.png" alt="painting"></div>
+        <div id="shoes"><img id="shoesimg" src="./house_items/shoes.png" alt="shoes"></div>
+        <div id="out-menu">
+            <button id="walk">Salir a caminar</button>
+            <button id="fun-park">Salir a un parque de diversiones</button>
+        </div>
+        <div id="work"><img id="caseimg" src="./house_items/briefcase.png" alt="briefcase"></div>
+        <div id="market"><img id="shoppingimg" src="./house_items/shopping.png" alt="shopping bag"></div>
+            <div id="marketmenu">
+                <div id="fries"><h1>Papas fritas</h1></div>
+                <div id="hamburguer"><h1>Hamburguesa</h1></div>
+                <div id="ground-meat"><h1>Carne Molida</h1></div>
+                <div id="ice-cream" class="market-item"><h1>Helado</h1></div>
+              
+            </div>
     </div>
+    <div id="follower-div"></div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const gameContainer = document.getElementById('game-container');
-            const designWidth = 1920; // Your chosen design width
-            const designHeight = 1080; // Your chosen design height
+            const designWidth = 1920;
+            const designHeight = 1080;
 
             function scaleGame() {
                 const viewportWidth = window.innerWidth;
@@ -114,50 +125,162 @@
             scaleGame();
 
             window.addEventListener('resize', scaleGame);
-        });
 
-        const hungerFill = document.querySelector('#hunger-bar .stat-fill');
-            const healthFill = document.querySelector('#health-bar .stat-fill');
-            const funFill = document.querySelector('#fun-bar .stat-fill');
 
-            const hungerValueDisplay = document.getElementById('hunger-value');
-            const healthValueDisplay = document.getElementById('health-value');
-            const funValueDisplay = document.getElementById('fun-value');
-            const moneyValueDisplay = document.getElementById('money-value');
+            const followerDiv = document.getElementById('follower-div');
 
-            function updateStatsDisplay() {
-                hunger = Math.max(0, Math.min(100, hunger));
-                health = Math.max(0, Math.min(100, health));
-                fun = Math.max(0, Math.min(100, fun));
-                money = Math.max(0, money);
+            document.addEventListener('mousemove', (e) => {
+                followerDiv.style.left = `${e.clientX}px`;
+                followerDiv.style.top = `${e.clientY - 30}px`;
+            });
 
-                hungerFill.style.width = `${hunger}%`;
-                healthFill.style.width = `${health}%`;
-                funFill.style.width = `${fun}%`;
+            document.addEventListener('mouseleave', () => {
+                followerDiv.style.display = 'none';
+            });
 
-                hungerValueDisplay.textContent = `${Math.round(hunger)}%`;
-                healthValueDisplay.textContent = `${Math.round(health)}%`;
-                funValueDisplay.textContent = `${Math.round(fun)}%`;
-                moneyValueDisplay.textContent = `${Math.round(money)}`;
+            document.addEventListener('mouseenter', () => {
+                followerDiv.style.display = 'block';
+            });
 
-                if (health < 20) {
-                    document.getElementById('health-bar').classList.add('low');
-                } else {
-                    document.getElementById('health-bar').classList.remove('low');
+            const musicTracks = [
+                { id: 'shakiraAntologia', name: 'Shakira - Antología', path: 'audio/shakira_antologia.mp3' },
+                { id: 'sherineKalamEineh', name: 'Sherine - Kalam Eineh', path: 'audio/sherine_kalam_eineh.mp3' },
+                { id: 'someBoys', name: 'Some boys take a beautiful girl and hide her away', path: 'audio/some_boys.mp3' },
+            ];
+
+            const audioPlayers = {};
+            let currentPlayingTrackId = null;
+
+
+            musicTracks.forEach(track => {
+                audioPlayers[track.id] = new Audio(track.path);
+                audioPlayers[track.id].loop = true;
+                audioPlayers[track.id].volume = 1;
+                
+            });
+
+            const shakiraAntologiaBtn = document.getElementById('shakiraAntologiaBtn');
+            const sherineKalamEinehBtn = document.getElementById('sherineKalamEinehBtn');
+            const someBoysBtn = document.getElementById('someBoysBtn');
+
+            function toggleTrack(trackId) {
+                const audio = audioPlayers[trackId];
+
+                if (!audio) {
+                    return;
                 }
 
-                if (hunger > 80) {
-                    document.getElementById('hunger-bar').classList.add('high');
+                if (audio.paused) {
+                    if (currentPlayingTrackId && currentPlayingTrackId !== trackId) {
+                        const prevAudio = audioPlayers[currentPlayingTrackId];
+                        if (prevAudio) {
+                            prevAudio.pause();
+                            prevAudio.currentTime = 0;
+                        }
+                    }
+
+                    audio.play()
+                        .then(() => {
+                            currentPlayingTrackId = trackId;
+                        })
+                        .catch(error => {
+                            console.warn(`Failed to play ${musicTracks.find(t => t.id === trackId).name}:`, error);
+                        });
                 } else {
-                    document.getElementById('hunger-bar').classList.remove('high');
+                    audio.pause();
+                    audio.currentTime = 0;
+                    currentPlayingTrackId = null;
                 }
             }
+
+            shakiraAntologiaBtn.addEventListener('click', () => toggleTrack('shakiraAntologia'));
+            sherineKalamEinehBtn.addEventListener('click', () => toggleTrack('sherineKalamEineh'));
+            someBoysBtn.addEventListener('click', () => toggleTrack('someBoys'));
+
+        });
+
+        const backgroundDiv = document.getElementById('background');
+        const backgroundOverlayDiv = document.getElementById('background-overlay'); 
+
+        function changeBackground(newImageUrl, transitionDuration = 1500) {
+            backgroundOverlayDiv.style.backgroundImage = `url(${newImageUrl})`;
+
+            requestAnimationFrame(() => {
+                backgroundOverlayDiv.style.opacity = '1';
+            });
+
+            setTimeout(() => {
+                backgroundDiv.style.backgroundImage = `url(${newImageUrl})`;
+                backgroundOverlayDiv.style.opacity = '0';
+            }, transitionDuration);
+        }
+
+        function changeBackgroundBlack(newImageUrl) {
+            backgroundOverlayDiv.style.backgroundImage = `url('./backgrounds/black.jpg')`;
+            backgroundOverlayDiv.style.zIndex = 1;
+            backgroundOverlayDiv.style.opacity = '1';
+
+            requestAnimationFrame(() => {
+                backgroundOverlayDiv.style.opacity = '1';
+            });
+
+            setTimeout(() => {
+                backgroundDiv.style.backgroundImage = `url(${newImageUrl})`;
+                setTimeout(() => {
+                    backgroundOverlayDiv.style.opacity = '0';
+                    setTimeout(() => {
+                        backgroundOverlayDiv.style.zIndex = -1;
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+
+        }
+
+
+        const hungerFill = document.querySelector('#hunger-bar .stat-fill');
+        const healthFill = document.querySelector('#health-bar .stat-fill');
+        const funFill = document.querySelector('#fun-bar .stat-fill');
+
+        const hungerValueDisplay = document.getElementById('hunger-value');
+        const healthValueDisplay = document.getElementById('health-value');
+        const funValueDisplay = document.getElementById('fun-value');
+        const moneyValueDisplay = document.getElementById('money-value');
+
+        function updateStatsDisplay() {
+            hunger = Math.max(0, Math.min(100, hunger));
+            health = Math.max(0, Math.min(100, health));
+            fun = Math.max(0, Math.min(100, fun));
+            money = Math.max(0, money);
+
+            hungerFill.style.width = `${hunger}%`;
+            healthFill.style.width = `${health}%`;
+            funFill.style.width = `${fun}%`;
+
+            hungerValueDisplay.textContent = `${Math.round(hunger)}%`;
+            healthValueDisplay.textContent = `${Math.round(health)}%`;
+            funValueDisplay.textContent = `${Math.round(fun)}%`;
+            moneyValueDisplay.textContent = `${Math.round(money)}`;
+
+            if (health < 20) {
+                document.getElementById('health-bar').classList.add('low');
+            } else {
+                document.getElementById('health-bar').classList.remove('low');
+            }
+
+            if (hunger > 80) {
+                document.getElementById('hunger-bar').classList.add('high');
+            } else {
+                document.getElementById('hunger-bar').classList.remove('high');
+            }
+        }
 
         let hunger;
         let health;
         let fun;
         let money;
+        let time;
         let currentPlace;
+        const cursorMessage = document.getElementById('follower-div');
 
         let utilities = [
             {
@@ -194,36 +317,31 @@
                 id: 1,
                 name: "Salir a caminar",
                 price: "0",
-                replenish: "40",
-                time: 20
+                replenish: 40,
             },
             {
                 id: 2,
                 name: "Leer un libro",
                 price: "10",
-                replenish: "50",
-                time: 25
+                replenish: 50,
             },
             {
                 id: 3,
                 name: "Pintar",
                 price: "15",
-                replenish: "60",
-                time: 15
+                replenish: 60,
             },
             {
                 id: 4,
                 name: "Escuchar Musica",
                 price: "15",
-                replenish: "60",
-                time: 20
+                replenish: 60,
             },
             {
                 id: 5,
                 name: "Parque de diversiones",
                 price: "70",
-                replenish: "100",
-                time: 30
+                replenish: 100,
             },
         ]
 
@@ -272,6 +390,36 @@
             },
         ]
 
+        //todo: port all the foods
+        const marketItemsData = {
+            'fries': {
+                name: 'Papas fritas',
+                price: 20,
+                hungerReplenish: 20,
+            },
+            'hamburguer': {
+                name: 'Hamburguesa',
+                price: 15,
+                hungerReplenish: 50,
+            },
+            'ground-meat': {
+                name: 'Carne Molida',
+                price: 10,
+                hungerReplenish: 0,
+            },
+            'salad': {
+                name: 'Ensalada',
+                price: 3,
+                hungerReplenish: 5,
+            },
+            'ice-cream': {
+                name: 'Helado',
+                price: 7,
+                hungerReplenish: 10,
+            }
+        };
+
+
         window.onload = function() {
             
             document.getElementById('bear').style.display='none';
@@ -290,43 +438,90 @@
 
         function start(){
 
-            hunger = 0;
-            health = 100;
-            fun = 100;
-            money = 50;
+            hunger = localStorage.getItem('hunger') || 0;
+            health = localStorage.getItem('health') || 100;
+            fun = localStorage.getItem('fun') || 100;
+            money = localStorage.getItem('money') || 50;
+            time = localStorage.getItem('time') || 0;
             currentPlace = 'home';
             updateStatsDisplay() 
 
+            if (time >= 20) {
+                backgroundDiv.style.backgroundImage = 'url(./backgrounds/home-night.png)';
+                document.getElementById('sleep').classList.add('toggled-on');   
+            } else {
+                backgroundDiv.style.backgroundImage = places[0].img;
+            }
+
             document.getElementById('bear').style.display = "block";
-            document.getElementById('background').style.backgroundImage = places[0].img;
 
             let gameInterval = setInterval(() => {
                 if (hunger >= 100) {
                     health -= 3;
+                    hunger = 100
                 } else {
                     hunger += 0.5;
                 };
 
-                if (fun <= 0) {
+                if (health <= 0) {
+                    health = 0
+                }
+
+                if (fun <= 0 && hunger != 100) {
                     hunger += 1;
+                } else if (fun <= 0){
+                    fun = 0
                 } else {
                     fun -= 1;
+                }
 
+                time ++
+
+                localStorage.setItem('hunger', hunger);
+                localStorage.setItem('fun', fun);
+                localStorage.setItem('health', health);
+                localStorage.setItem('time', time);
+
+                if (time == 21 && currentPlace == 'home') {
+                    document.getElementById('sleep').classList.add('toggled-on');
+                }
+
+
+                if (time == 20 && currentPlace == 'home') {
+                    changeBackground('./backgrounds/home-night.png');
                 }
 
                 updateStatsDisplay();
                 
-            }, 10000);
+            }, 200);
 
             document.getElementById('home').addEventListener("click", function(){
                 currentPlace = 'home';
-                document.getElementById('background').style.backgroundImage = places[0].img;
+                if (time >= 20) {
+                    changeBackgroundBlack('./backgrounds/home-night.png');
+                    setTimeout(() => {
+                        document.getElementById('sleep').classList.add('toggled-on');
+                    }, 1500);
+                } else {
+                    changeBackgroundBlack('./backgrounds/home.png');
+                }
             });
 
             document.getElementById('market').addEventListener("click", function(){
-                currentPlace = 'market';
-                openMarket();
-                document.getElementById('background').style.backgroundImage = places[1].img;
+                if (time >= 20) {
+                   cursorMessage.textContent = 'La tienda está cerrada.';
+                    cursorMessage.classList.add('toggled-on')
+                    setTimeout(() => {
+                        cursorMessage.classList.remove('toggled-on')
+                    }, 3000);
+                } else {
+                    currentPlace = 'market';
+                    changeBackgroundBlack('./backgrounds/market.png');
+                    setTimeout(() => {
+                        hideItems()
+                        document.getElementById('marketmenu').style.display = 'flex'
+                    }, 1500);
+                }
             });
 
             document.getElementById('optionstoggle').addEventListener("click", function(){
@@ -335,24 +530,132 @@
             });
 
 
-
-
-
             document.getElementById('speakers').addEventListener("click", function(){
-                document.getElementById('musicmenu').style.display = "flex"
+                document.getElementById('musicmenu').classList.toggle('toggled-on');
             });
 
             document.getElementById('books').addEventListener('click', () => {
-                fun += activities[1].replenish;
-                money -= activities[1].price;
-                updateStatsDisplay();
+                if (money >= activities[1].price) {
+                    fun += activities[1].replenish;
+                    money -= activities[1].price;
+                    localStorage.setItem('money', money);
+                    updateStatsDisplay();
+                } else {
+                    cursorMessage.textContent = 'No tienes suficiente dinero!';
+                    cursorMessage.classList.add('toggled-on')
+                    setTimeout(() => {
+                        cursorMessage.classList.remove('toggled-on')
+                    }, 3000);
+                }
             });
+
+
+            document.getElementById('sleep').addEventListener("click", function(){
+                time = 0;
+                changeBackgroundBlack('./backgrounds/home.png');
+                document.getElementById('sleep').classList.remove('toggled-on');
+
+            });
+
+            document.getElementById('shoes').addEventListener("click", function(){
+                document.getElementById('out-menu').classList.toggle('toggled-on');
+            });
+
+            document.getElementById('walk').addEventListener("click", function(){
+                if (time >= 20) {
+                    cursorMessage.textContent = 'Es muy tarde para salir.';
+                    cursorMessage.classList.add('toggled-on');
+                    setTimeout(() => {
+                        cursorMessage.classList.remove('toggled-on');
+                    }, 3000);
+                } else {
+                    document.getElementById('out-menu').classList.remove('toggled-on');
+                    currentPlace = 'outside';
+                    changeBackgroundBlack('./backgrounds/outside.png');
+
+                    setTimeout(() => {
+                        hideItems()
+                    }, 1500);
+
+                    setTimeout(() => {
+                        fun += activities[0].replenish;
+
+                        if (time >= 20) {
+                            changeBackgroundBlack('./backgrounds/home-night.png');
+                        } else {
+                            changeBackgroundBlack('./backgrounds/home.png');
+                        }
+
+                        setTimeout(() => {
+                            showItems();
+                            if (time >= 20) {
+                                document.getElementById('sleep').classList.add('toggled-on');
+                            }
+                        }, 1500);
+                    }, 6000);
+                }
+            });
+
+            document.getElementById('work').addEventListener("click", function(){
+                if (time >= 20) {
+                    cursorMessage.textContent = 'Es muy tarde para trabajar.';
+                    cursorMessage.classList.add('toggled-on');
+                    setTimeout(() => {
+                        cursorMessage.classList.remove('toggled-on');
+                    }, 3000);
+                } else {
+                    currentPlace = 'work';
+                    changeBackgroundBlack('./backgrounds/work.png');
+
+                    setTimeout(() => {
+                        hideItems()
+                    }, 1500);
+
+                    setTimeout(() => {
+                        money += 100
+                        localStorage.setItem('money', money);
+                        if (time >= 20) {
+                            changeBackgroundBlack('./backgrounds/home-night.png');
+                        } else {
+                            changeBackgroundBlack('./backgrounds/home.png');    
+                        }
+                        setTimeout(() => {
+                            showItems()
+                            if (time >= 20) {
+                                document.getElementById('sleep').classList.add('toggled-on');
+                            }
+                        }, 1500);
+                    }, 6000);
+                }
+
+            });
+
+            function hideItems(){
+                document.getElementById('books').style.display = 'none';
+                document.getElementById('optionstoggle').style.display = 'none';
+                document.getElementById('options').style.display = 'none';
+                document.getElementById('speakers').style.display = 'none';
+                document.getElementById('shoes').style.display = 'none';
+                document.getElementById('work').style.display = 'none';
+                document.getElementById('market').style.display = 'none';
+                document.getElementById('paint').style.display = 'none';
+                document.getElementById('inventory').style.display = 'none';
+            }
+
+            function showItems(){
+                document.getElementById('books').style.display = '';
+                document.getElementById('optionstoggle').style.display = '';
+                document.getElementById('options').style.display = '';
+                document.getElementById('speakers').style.display = '';
+                document.getElementById('shoes').style.display = '';
+                document.getElementById('work').style.display = '';
+                document.getElementById('market').style.display = '';
+                document.getElementById('paint').style.display = '';
+                document.getElementById('inventory').style.display = '';
+            }
             
         }
 
-        function openMarket(){
-
-        }
     </script>
 </body>
 </html>
