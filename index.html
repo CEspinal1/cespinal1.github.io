@@ -899,6 +899,7 @@
                     fun += 50
                     localStorage.setItem('money', money);
                     localStorage.setItem('fun', fun);
+                    updateStatsDisplay();
                     currentPlace = 'home';
                     if (time >= 20) {
                         changeBackgroundBlack('./backgrounds/home-night.png');
@@ -974,6 +975,7 @@
 
                 setTimeout(() => {
                     fun += activities[0].replenish;
+                    updateStatsDisplay();
                     currentPlace = 'home';
                     if (time >= 20) {
                         changeBackgroundBlack('./backgrounds/home-night.png');
@@ -1013,6 +1015,7 @@
                 setTimeout(() => {
                     money += 100
                     localStorage.setItem('money', money);
+                    updateStatsDisplay();
                     currentPlace = 'home';
                     if (time >= 20) {
                         changeBackgroundBlack('./backgrounds/home-night.png');
@@ -1023,7 +1026,6 @@
                         showItems();
                         document.getElementById('bear').classList.remove('work');
                         document.getElementsByClassName('bear-img')[0].classList.remove('work');
-                        updateStatsDisplay();
                         if (time >= 20) {
                             document.getElementById('sleep').classList.add('toggled-on');
                         }
@@ -1054,6 +1056,7 @@
                     health = 100
                     localStorage.setItem('money', money);
                     localStorage.setItem('health', health);
+                    updateStatsDisplay();
                     currentPlace = 'home';
                     if (time >= 20) {
                         changeBackgroundBlack('./backgrounds/home-night.png');
