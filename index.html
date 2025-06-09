@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="shortcut icon" href="./favicon/favicon.ico" type="image/x-icon">
@@ -12,7 +17,7 @@
     <div id="game-container">
 
         <button id="sleep">Dormir</button>
-        <button id="retry">Reintentar</button>
+        <button id="retry">Tu oso ha muerto! <br> Inténtalo denuevo.</button>
 
         <div id="background"></div>
         <div id="background-overlay"></div>
@@ -52,20 +57,12 @@
                 Dinero: $<span id="money-value">50</span>
             </div>
         </div>
-
-        <div id="help">
-            <i class="fa-solid fa-question"></i>
-        </div>
-        
-        <button id="optionstoggle"><i class="fa-solid fa-arrows-up-down"></i></button>
-        
-        <div id="options">
-            <div id="places">
-                <button id="home">Casa</button>
+        <a href="./manual.html" target="_blank">
+            <div id="help">
+                <i class="fa-solid fa-question"></i>
             </div>
-
-        </div>
-
+        </a>
+        
         <div id="speakers"><img id="speakersimg" src="./house_items/speakers.png" alt="speakers"></div>
             <div id="musicmenu">
                 <button id="shakiraAntologiaBtn">Shakira - Antología</button>
@@ -74,6 +71,25 @@
             </div>
 
         <div id="books"><img id="booksimg" src="./house_items/books.png" alt="books"></div>
+        <div id="pages">
+                <div id="page1">
+                Extraño la luz de tus mañanas,
+                el café compartido, la prisa de tus besos.
+                Se ha ido el tiempo, se han ido las ganas
+                de todo aquello que en ti hallaba mis regresos.
+                Ahora el día se extiende gris, sin tu presencia,
+                y mi alma, errante, busca la estela de tu ausencia.
+            </div>
+            <div id="page2">
+                Y en tu recuerdo, la noche se hizo más larga,
+                un eco suave de risas que el viento se lleva.
+                Me queda el rastro de tu voz, una amarga
+                dulzura que en el alma el tiempo no atreve a secar.
+                Fuiste un sol que partió, dejando en mi ventana
+                la sombra fiel de lo que un día fue, y no volverá.
+            </div>
+        </div>
+        
         <div id="inventory"><img id="boximg" src="./house_items/box.png" alt="box"></div>
             <div id="inventorymenu">
                 <button id="closeInventoryBtn">Cerrar</button>
@@ -81,23 +97,27 @@
                 <div id="inventory-list"></div>
             </div>
         <div id="paint"><img id="paintimg" src="./house_items/trophy.png" alt="painting"></div>
+        <div id="game-stats">
+            <h1 id="stats-back">Atras</h1>
+            <h1>Estadísticas</h1>
+            <h1 id="stats-timeplayed"></h1>
+            <h1>Más estadísticas pronto</h1>
+        </div>
+
         <div id="shoes"><img id="shoesimg" src="./house_items/shoes.png" alt="shoes"></div>
         <div id="out-menu">
             <button id="walk">Salir a caminar</button>
-            <button id="fun-park">Salir a un parque de diversiones</button>
+            <button id="hospital">Ir al hospital (precio: 400)</button>
         </div>
         <div id="work"><img id="caseimg" src="./house_items/briefcase.png" alt="briefcase"></div>
         <div id="market"><img id="shoppingimg" src="./house_items/shopping.png" alt="shopping bag"></div>
             <div id="marketmenu">
                 <button id="back">X</button>
-                <div id="fries" class="market-item"><h1>Papas fritas</h1></div>
-                <div id="hamburguer" class="market-item"><h1>Hamburguesa</h1></div>
-                <div id="ground-meat" class="market-item"><h1>Carne Molida</h1></div>
-                <div id="salad" class="market-item"><h1>Ensalada</h1></div>
-                <div id="cake" class="market-item"><h1>Pastel de caramelo</h1></div>
-                <div id="ice-cream" class="market-item"><h1>Helado de chocolate</h1></div>
-                <div id="taco" class="market-item"><h1>Taco de carne molida</h1></div>
+                <h2>Mercado</h2>
+                <h3 id="money-store">Dinero: </h3>
+                <div id="market-items-list"></div>
             </div>
+            
     </div>
     <div id="follower-div"></div>
     <script>
@@ -254,6 +274,8 @@
         const moneyValueDisplay = document.getElementById('money-value');
 
         const marketMenu = document.getElementById('marketmenu');
+        const marketItemsListDiv = document.getElementById('market-items-list');
+
 
         const inventoryMenu = document.getElementById('inventorymenu');
         const inventoryListDiv = document.getElementById('inventory-list');
@@ -262,7 +284,7 @@
         function displayInventory() {
             inventoryListDiv.innerHTML = '';
 
-            if (Object.keys(inventory).length === 0) {
+            if (Object.keys(inventory).length === 0 || Object.values(inventory).every(qty => qty === 0)) {
                 inventoryListDiv.innerHTML = '<p style="text-align: center; font-style: italic; opacity: 0.8;">Tu inventario está vacío.</p>';
             }
 
@@ -275,21 +297,27 @@
                         const itemDiv = document.createElement('div');
                         itemDiv.classList.add('inventory-item');
 
+                        const itemImage = document.createElement('img');
+                        itemImage.src = itemDetails.image;
+                        itemImage.alt = itemDetails.name;
+                        itemImage.classList.add('inventory-item-img');
+                        itemDiv.appendChild(itemImage);
+
                         const itemNameSpan = document.createElement('span');
                         itemNameSpan.classList.add('item-name');
                         itemNameSpan.textContent = itemDetails.name;
+                        itemDiv.appendChild(itemNameSpan);
 
                         const itemQuantitySpan = document.createElement('span');
                         itemQuantitySpan.classList.add('item-quantity');
                         itemQuantitySpan.textContent = `x${quantity}`;
+                        itemDiv.appendChild(itemQuantitySpan);
 
                         const useButton = document.createElement('button');
                         useButton.textContent = 'Usar';
                         useButton.classList.add('use-item-btn');
                         useButton.addEventListener('click', () => useItem(itemId));
 
-                        itemDiv.appendChild(itemNameSpan);
-                        itemDiv.appendChild(itemQuantitySpan);
                         itemDiv.appendChild(useButton);
 
                         inventoryListDiv.appendChild(itemDiv);
@@ -328,6 +356,12 @@
                 localStorage.setItem('hunger', hunger.toString());
                 localStorage.setItem('health', health.toString());
                 localStorage.setItem('fun', fun.toString());
+
+                cursorMessage.textContent = "Has consumido '" + itemData.name + "'.";
+                cursorMessage.classList.add('toggled-on');
+                setTimeout(() => {
+                    cursorMessage.classList.remove('toggled-on');
+                }, 1000);
 
                 updateStatsDisplay();
                 displayInventory();
@@ -373,6 +407,7 @@
         let money;
         let inventory;
         let time;
+        let timeplayed;
         let currentPlace;
         const cursorMessage = document.getElementById('follower-div');
 
@@ -444,99 +479,133 @@
                 name: 'Papas fritas',
                 price: 20,
                 hungerReplenish: 20,
+                image: 'food_items/fries.png'
             },
-            'hamburguer': {
+            'hamburger': {
                 name: 'Hamburguesa',
                 price: 40,
                 hungerReplenish: 35,
+                image: 'food_items/burger.png'
             },
             'ground-meat': {
                 name: 'Carne Molida',
                 price: 30,
                 hungerReplenish: 25,
+                image: 'food_items/meat.png'
             },
             'salad': {
                 name: 'Ensalada',
                 price: 10,
                 hungerReplenish: 10,
+                image: 'food_items/salad.png'
             },
             'cake': {
                 name: 'Pastel de caramelo',
                 price: 70,
                 hungerReplenish: 55,
+                image: 'food_items/cake.png'
             },
             'ice-cream': {
                 name: 'Helado de chocolate',
                 price: 25,
                 hungerReplenish: 22,
+                image: 'food_items/icecream.png'
             },
             'taco': {
                 name: 'Taco de carne molida',
                 price: 50,
                 hungerReplenish: 40,
+                image: 'food_items/taco.png'
             }
         };
 
-        marketMenu.addEventListener('click', (event) => {
-            const clickedItem = event.target.closest('.market-item');
+        function populateMarket() {
+            marketItemsListDiv.innerHTML = '';
 
-            if (clickedItem) {
-                const itemId = clickedItem.id;
-                const itemData = marketItemsData[itemId];
+            for (const itemId in marketItemsData) {
+                if (marketItemsData.hasOwnProperty(itemId)) {
+                    const itemData = marketItemsData[itemId];
 
-                if (itemData) {
-                    if (money >= itemData.price) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.id = itemId;
+                    itemDiv.classList.add('market-item');
 
-                        cursorMessage.textContent = "Has comprado " + itemData.name + '.';
-                        cursorMessage.classList.add('toggled-on')
-                        setTimeout(() => {
-                            cursorMessage.classList.remove('toggled-on')
-                        }, 1000);            
+                    const itemImage = document.createElement('img');
+                    itemImage.src = itemData.image;
+                    itemImage.alt = itemData.name;
+                    itemImage.classList.add('market-item-img');
+                    itemDiv.appendChild(itemImage);
 
-                        money -= itemData.price;
+                    const itemName = document.createElement('h3');
+                    itemName.textContent = itemData.name;
+                    itemDiv.appendChild(itemName);
 
-                        hunger = Math.max(0, Math.min(100, hunger));
-                        fun = Math.max(0, Math.min(100, fun));
+                    const itemPrice = document.createElement('p');
+                    itemPrice.textContent = `Precio: $${itemData.price}`;
+                    itemPrice.classList.add('item-price');
+                    itemDiv.appendChild(itemPrice);
 
-                        if (inventory[itemId]) {
-                            inventory[itemId]++;
-                        } else {
-                            inventory[itemId] = 1;
-                        }
+                    itemDiv.addEventListener('click', () => {
+                        buyItem(itemId);
+                    });
 
-                        localStorage.setItem('inventory', JSON.stringify(inventory));
-
-                        updateStatsDisplay();
-                    } else {
-                        cursorMessage.textContent = 'No tienes suficiente dinero.';
-                        cursorMessage.classList.add('toggled-on')
-                        setTimeout(() => {
-                            cursorMessage.classList.remove('toggled-on')
-                        }, 3000);
-                    }
-
-                } else {
-                    console.warn(`No data found for market item with ID: ${itemId}`);
+                    marketItemsListDiv.appendChild(itemDiv);
                 }
             }
-        });
+        }
 
+        function buyItem(itemId) {
+            const itemData = marketItemsData[itemId];
 
+            if (itemData) {
+                if (money >= itemData.price) {
+
+                    cursorMessage.textContent = "Has comprado '" + itemData.name + "'.";
+                    cursorMessage.classList.add('toggled-on');
+                    setTimeout(() => {
+                        cursorMessage.classList.remove('toggled-on');
+                    }, 1000);
+
+                    money -= itemData.price;
+                    if (inventory[itemId]) {
+                        inventory[itemId]++;
+                    } else {
+                        inventory[itemId] = 1;
+                    }
+
+                    document.getElementById('money-store').innerHTML = "Dinero: $" + money.toString();
+
+                    localStorage.setItem('inventory', JSON.stringify(inventory));
+                    localStorage.setItem('money', money);
+                    updateStatsDisplay();
+                } else {
+                    cursorMessage.textContent = 'No tienes suficiente dinero!';
+                    cursorMessage.classList.add('toggled-on');
+                    setTimeout(() => {
+                        cursorMessage.classList.remove('toggled-on');
+                    }, 1000);
+                }
+            } else {
+                console.warn(`No data found for market item with ID: ${itemId}`);
+            }
+        }
 
         window.onload = function() {
-            
+            hideItems();
             document.getElementById('bear').style.display='none';
+            document.getElementById('marketmenu').style.display = 'none';
+            document.getElementById('inventorymenu').style.display = 'none';
 
             const message = document.getElementById("messages");
             message.innerHTML = "<h1> Holiiiiii </h1>"
             setTimeout(() => {
                 message.innerHTML = "<h1> Te dedico este jueguito. Espero que te guste ;D </h1>"
-                setTimeout(() => {
+                setTimeout(() => { 
                     message.innerHTML = "";
                     message.style.display = "none";
                     start()
-                }, 35);
-            }, 20);
+                }, 3500);
+            }, 2000);
         };
 
         function start(){
@@ -545,20 +614,24 @@
                 clearInterval(gameInterval);
             }
 
+            populateMarket();
+
             document.getElementById('musicmenu').classList.remove('toggled-on');
             document.getElementById('musicmenu').style.display = 'none';
 
             document.getElementById('out-menu').classList.remove('toggled-on');
             document.getElementById('out-menu').style.display = 'none';
 
-            document.getElementById('options').classList.remove('toggled-on');
-
             document.getElementById('marketmenu').style.display = 'none';
             document.getElementById('inventorymenu').style.display = 'none';
             document.getElementById('retry').classList.remove('toggled-on');
-            document.getElementById('messages').style.display = 'none';
 
-            showItems();
+            setTimeout(() => {
+                document.getElementById('messages').style.display = 'none';
+                document.getElementById('bear').style.display = "block";
+                showItems();
+            }, 1500);
+
 
             if(!localStorage.getItem('money')){
                 money = 50;
@@ -570,18 +643,17 @@
             health = localStorage.getItem('health') || 100;
             fun = localStorage.getItem('fun') || 100;
             time = localStorage.getItem('time') || 0;
+            timeplayed = parseInt(localStorage.getItem('timeplayed')) || 0;
             inventory = JSON.parse(localStorage.getItem('inventory')) || {};
             currentPlace = 'home';
             updateStatsDisplay() 
 
             if (time >= 20) {
-                backgroundDiv.style.backgroundImage = 'url(./backgrounds/home-night.png)';
+                changeBackgroundBlack('./backgrounds/home-night.png');
                 document.getElementById('sleep').classList.add('toggled-on');   
             } else {
-                backgroundDiv.style.backgroundImage = places[0].img;
+                changeBackgroundBlack('./backgrounds/home.png');
             }
-
-            document.getElementById('bear').style.display = "block";
 
             gameInterval = setInterval(() => {
                 
@@ -601,12 +673,14 @@
                 }
 
                 time ++
+                timeplayed += 10
 
                 localStorage.setItem('money', money);
                 localStorage.setItem('hunger', hunger);
                 localStorage.setItem('fun', fun);
                 localStorage.setItem('health', health);
                 localStorage.setItem('time', time);
+                localStorage.setItem('timeplayed', timeplayed);
 
 
                 if (time == 21 && currentPlace == 'home') {
@@ -631,9 +705,10 @@
                     localStorage.removeItem('health');
                     localStorage.removeItem('time');
                     hideItems();
+                    document.getElementById('bear').style.display = 'none'
                     document.getElementById('retry').classList.add('toggled-on');
                 }
-            }, 5000);
+            }, 10000);
         }
 
 
@@ -651,33 +726,78 @@
             }, 1500);
         });
 
-        document.getElementById('home').addEventListener("click", function(){
-            currentPlace = 'home';
-            if (time >= 20) {
-                changeBackgroundBlack('./backgrounds/home-night.png');
-                setTimeout(() => {
-                    document.getElementById('sleep').classList.add('toggled-on');
-                }, 1500);
-            } else {
-                changeBackgroundBlack('./backgrounds/home.png');
-            }
-        });
-
         document.getElementById('market').addEventListener("click", function(){
             if (time >= 20) {
                 cursorMessage.textContent = 'La tienda está cerrada.';
                 cursorMessage.classList.add('toggled-on')
                 setTimeout(() => {
                     cursorMessage.classList.remove('toggled-on')
-                }, 3000);
+                }, 2000);
             } else {
                 currentPlace = 'market';
                 changeBackgroundBlack('./backgrounds/market.png');
+                document.getElementById('money-store').innerHTML = "Dinero: $" + money.toString();
                 setTimeout(() => {
                     hideItems()
                     document.getElementById('marketmenu').style.display = 'flex'
                 }, 1500);
             }
+        });
+
+        document.getElementById('market').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Ir a la tienda.';
+            cursorMessage.classList.add('toggled-on')
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on')
+            }, 1500);
+        });
+
+        document.getElementById('work').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Ir a trabajar.';
+            cursorMessage.classList.add('toggled-on')
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on')
+            }, 1500);
+        });
+
+        document.getElementById('books').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Leer libros (precio: 10).';
+            cursorMessage.classList.add('toggled-on')
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on')
+            }, 2000);
+        });
+
+        document.getElementById('inventory').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Abrir inventario.';
+            cursorMessage.classList.add('toggled-on')
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on')
+            }, 1500);
+        });
+
+        document.getElementById('speakers').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Escuchar música.';
+            cursorMessage.classList.add('toggled-on')
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on');
+            }, 1500);
+        });
+
+        document.getElementById('shoes').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Salir.';
+            cursorMessage.classList.add('toggled-on');
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on');
+            }, 1500);
+        });
+
+        document.getElementById('paint').addEventListener("mouseover", function(){
+            cursorMessage.textContent = 'Ver estadísticas.';
+            cursorMessage.classList.add('toggled-on');
+            setTimeout(() => {
+                cursorMessage.classList.remove('toggled-on');
+            }, 1500);
         });
 
         document.getElementById('inventory').addEventListener("click", function(){
@@ -689,28 +809,48 @@
             inventoryMenu.style.display = 'none';
             showItems();
         });
-        document.getElementById('optionstoggle').addEventListener("click", function(){
-            document.getElementById('optionstoggle').classList.toggle('toggled-on');
-            document.getElementById('options').classList.toggle('toggled-on');
-        });
-
 
         document.getElementById('speakers').addEventListener("click", function(){
             document.getElementById('musicmenu').classList.toggle('toggled-on');
         });
 
         document.getElementById('books').addEventListener('click', () => {
-            if (money >= activities[1].price) {
-                fun += activities[1].replenish;
-                money -= activities[1].price;
-                localStorage.setItem('money', money);
-                updateStatsDisplay();
-            } else {
-                cursorMessage.textContent = 'No tienes suficiente dinero!';
-                cursorMessage.classList.add('toggled-on')
+            if (money < 10) {
+                cursorMessage.textContent = 'No tienes suficiente dinero para comprar un libro.';
+                cursorMessage.classList.add('toggled-on');
                 setTimeout(() => {
-                    cursorMessage.classList.remove('toggled-on')
-                }, 3000);
+                    cursorMessage.classList.remove('toggled-on');
+                }, 2000);
+            } else {
+                currentPlace = 'reading';
+                changeBackgroundBlack('./backgrounds/book.png');
+
+                setTimeout(() => {
+                    hideItems();
+                    document.getElementById('bear').style.display = 'none';
+                    document.getElementById('pages').style.display = 'flex';
+                }, 1500);
+
+                setTimeout(() => {
+                    money -= 10
+                    fun += 50
+                    localStorage.setItem('money', money);
+                    localStorage.setItem('fun', fun);
+                    currentPlace = 'home';
+                    if (time >= 20) {
+                        changeBackgroundBlack('./backgrounds/home-night.png');
+                    } else {
+                        changeBackgroundBlack('./backgrounds/home.png');    
+                    }
+                    setTimeout(() => {
+                        showItems();
+                        document.getElementById('bear').style.display = '';
+                        document.getElementById('pages').style.display = 'none';
+                        if (time >= 20) {
+                            document.getElementById('sleep').classList.add('toggled-on');
+                        }
+                    }, 1500);
+                }, 15000);
             }
         });
 
@@ -723,6 +863,17 @@
 
         document.getElementById('shoes').addEventListener("click", function(){
             document.getElementById('out-menu').classList.toggle('toggled-on');
+        });
+
+        document.getElementById('paint').addEventListener("click", function(){
+            document.getElementById('stats-timeplayed').textContent = "Tiempo jugado: " + formatSecondsToHMS(timeplayed);
+            document.getElementById('game-stats').classList.add('toggled-on');
+            hideItems();
+        });
+
+        document.getElementById('stats-back').addEventListener("click", function(){
+            document.getElementById('game-stats').classList.remove('toggled-on');
+            showItems();
         });
 
         document.getElementById('back').addEventListener("click", function(){
@@ -754,7 +905,8 @@
                 changeBackgroundBlack('./backgrounds/outside.png');
 
                 setTimeout(() => {
-                    hideItems()
+                    hideItems();
+                    document.getElementById('bear').classList.add('park');
                 }, 1500);
 
                 setTimeout(() => {
@@ -768,11 +920,13 @@
 
                     setTimeout(() => {
                         showItems();
+                        document.getElementById('bear').classList.remove('park');
+                        updateStatsDisplay();
                         if (time >= 20) {
                             document.getElementById('sleep').classList.add('toggled-on');
                         }
                     }, 1500);
-                }, 6000);
+                }, 15000);
             }
         });
 
@@ -788,7 +942,9 @@
                 changeBackgroundBlack('./backgrounds/work.png');
 
                 setTimeout(() => {
-                    hideItems()
+                    hideItems();
+                    document.getElementById('bear').classList.add('work');
+                    document.getElementsByClassName('bear-img')[0].classList.add('work');
                 }, 1500);
 
                 setTimeout(() => {
@@ -802,20 +958,59 @@
                     }
                     setTimeout(() => {
                         showItems();
+                        document.getElementById('bear').classList.remove('work');
+                        document.getElementsByClassName('bear-img')[0].classList.remove('work');
+                        updateStatsDisplay();
                         if (time >= 20) {
                             document.getElementById('sleep').classList.add('toggled-on');
                         }
                     }, 1500);
-                }, 6000);
+                }, 20000);
             }
+        });
 
+        document.getElementById('hospital').addEventListener("click", function(){
+            if (money < 400) {
+                cursorMessage.textContent = 'No tienes suficiente dinero.';
+                cursorMessage.classList.add('toggled-on');
+                setTimeout(() => {
+                    cursorMessage.classList.remove('toggled-on');
+                }, 2000);
+            } else {
+                document.getElementById('out-menu').classList.remove('toggled-on');
+                currentPlace = 'hospital';
+                changeBackgroundBlack('./backgrounds/hospital.png');
+
+                setTimeout(() => {
+                    hideItems();
+                    document.getElementById('bear').classList.add('hospital');
+                }, 1500);
+
+                setTimeout(() => {
+                    money -= 400
+                    health = 100
+                    localStorage.setItem('money', money);
+                    localStorage.setItem('health', health);
+                    currentPlace = 'home';
+                    if (time >= 20) {
+                        changeBackgroundBlack('./backgrounds/home-night.png');
+                    } else {
+                        changeBackgroundBlack('./backgrounds/home.png');    
+                    }
+                    setTimeout(() => {
+                        showItems();
+                        document.getElementById('bear').classList.remove('hospital');
+                        if (time >= 20) {
+                            document.getElementById('sleep').classList.add('toggled-on');
+                        }
+                    }, 1500);
+                }, 10000);
+            }
         });
 
 
         function hideItems(){
             document.getElementById('books').style.display = 'none';
-            document.getElementById('optionstoggle').style.display = 'none';
-            document.getElementById('options').style.display = 'none';
             document.getElementById('speakers').style.display = 'none';
             document.getElementById('musicmenu').style.display = 'none';
             document.getElementById('shoes').style.display = 'none';
@@ -829,8 +1024,6 @@
 
         function showItems(){
             document.getElementById('books').style.display = '';
-            document.getElementById('optionstoggle').style.display = '';
-            document.getElementById('options').style.display = '';
             document.getElementById('speakers').style.display = '';
             document.getElementById('musicmenu').style.display = '';
             document.getElementById('shoes').style.display = '';
@@ -841,6 +1034,20 @@
             document.getElementById('paint').style.display = '';
             document.getElementById('inventory').style.display = '';
         }
+
+        function formatSecondsToHMS(totalSeconds) {
+            totalSeconds = Math.max(0, Math.floor(totalSeconds));
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+
+            return `${hours}h ${formattedMinutes}m ${formattedSeconds}s`;
+        }
+
 
     </script>
 </body>
