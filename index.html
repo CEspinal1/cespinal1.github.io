@@ -12,6 +12,7 @@
     <div id="game-container">
 
         <button id="sleep">Dormir</button>
+        <button id="retry">Reintentar</button>
 
         <div id="background"></div>
         <div id="background-overlay"></div>
@@ -75,9 +76,11 @@
         <div id="books"><img id="booksimg" src="./house_items/books.png" alt="books"></div>
         <div id="inventory"><img id="boximg" src="./house_items/box.png" alt="box"></div>
             <div id="inventorymenu">
-
+                <button id="closeInventoryBtn">Cerrar</button>
+                <h2>Inventario</h2>
+                <div id="inventory-list"></div>
             </div>
-        <div id="paint"><img id="paintimg" src="./house_items/art_items/trophy.png" alt="painting"></div>
+        <div id="paint"><img id="paintimg" src="./house_items/trophy.png" alt="painting"></div>
         <div id="shoes"><img id="shoesimg" src="./house_items/shoes.png" alt="shoes"></div>
         <div id="out-menu">
             <button id="walk">Salir a caminar</button>
@@ -86,15 +89,19 @@
         <div id="work"><img id="caseimg" src="./house_items/briefcase.png" alt="briefcase"></div>
         <div id="market"><img id="shoppingimg" src="./house_items/shopping.png" alt="shopping bag"></div>
             <div id="marketmenu">
-                <div id="fries"><h1>Papas fritas</h1></div>
-                <div id="hamburguer"><h1>Hamburguesa</h1></div>
-                <div id="ground-meat"><h1>Carne Molida</h1></div>
-                <div id="ice-cream" class="market-item"><h1>Helado</h1></div>
-              
+                <button id="back">X</button>
+                <div id="fries" class="market-item"><h1>Papas fritas</h1></div>
+                <div id="hamburguer" class="market-item"><h1>Hamburguesa</h1></div>
+                <div id="ground-meat" class="market-item"><h1>Carne Molida</h1></div>
+                <div id="salad" class="market-item"><h1>Ensalada</h1></div>
+                <div id="cake" class="market-item"><h1>Pastel de caramelo</h1></div>
+                <div id="ice-cream" class="market-item"><h1>Helado de chocolate</h1></div>
+                <div id="taco" class="market-item"><h1>Taco de carne molida</h1></div>
             </div>
     </div>
     <div id="follower-div"></div>
     <script>
+        let gameInterval = null
         document.addEventListener('DOMContentLoaded', () => {
             const gameContainer = document.getElementById('game-container');
             const designWidth = 1920;
@@ -246,6 +253,87 @@
         const funValueDisplay = document.getElementById('fun-value');
         const moneyValueDisplay = document.getElementById('money-value');
 
+        const marketMenu = document.getElementById('marketmenu');
+
+        const inventoryMenu = document.getElementById('inventorymenu');
+        const inventoryListDiv = document.getElementById('inventory-list');
+        const closeInventoryBtn = document.getElementById('closeInventoryBtn');
+
+        function displayInventory() {
+            inventoryListDiv.innerHTML = '';
+
+            if (Object.keys(inventory).length === 0) {
+                inventoryListDiv.innerHTML = '<p style="text-align: center; font-style: italic; opacity: 0.8;">Tu inventario está vacío.</p>';
+            }
+
+            for (const itemId in inventory) {
+                if (inventory.hasOwnProperty(itemId)) {
+                    const quantity = inventory[itemId];
+                    const itemDetails = marketItemsData[itemId];
+
+                    if (itemDetails && quantity > 0) {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.classList.add('inventory-item');
+
+                        const itemNameSpan = document.createElement('span');
+                        itemNameSpan.classList.add('item-name');
+                        itemNameSpan.textContent = itemDetails.name;
+
+                        const itemQuantitySpan = document.createElement('span');
+                        itemQuantitySpan.classList.add('item-quantity');
+                        itemQuantitySpan.textContent = `x${quantity}`;
+
+                        const useButton = document.createElement('button');
+                        useButton.textContent = 'Usar';
+                        useButton.classList.add('use-item-btn');
+                        useButton.addEventListener('click', () => useItem(itemId));
+
+                        itemDiv.appendChild(itemNameSpan);
+                        itemDiv.appendChild(itemQuantitySpan);
+                        itemDiv.appendChild(useButton);
+
+                        inventoryListDiv.appendChild(itemDiv);
+                    }
+                }
+            }
+            inventoryMenu.style.display = 'flex';
+        }
+
+        function useItem(itemId) {
+            const itemData = marketItemsData[itemId];
+
+            if (!itemData) {
+                console.warn(`No data found for item with ID: ${itemId}`);
+                return;
+            }
+
+            if (inventory[itemId] > 0) {
+                inventory[itemId]--;
+
+                if (itemData.hungerReplenish) {
+                    hunger -= itemData.hungerReplenish;
+                }
+                if (itemData.healthReplenish) {
+                    health += itemData.healthReplenish;
+                }
+                if (itemData.funReplenish) {
+                    fun += itemData.funReplenish;
+                }
+
+                hunger = Math.max(0, Math.min(100, hunger));
+                health = Math.max(0, Math.min(100, health));
+                fun = Math.max(0, Math.min(100, fun));
+
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                localStorage.setItem('hunger', hunger.toString());
+                localStorage.setItem('health', health.toString());
+                localStorage.setItem('fun', fun.toString());
+
+                updateStatsDisplay();
+                displayInventory();
+            }
+        }
+
         function updateStatsDisplay() {
             hunger = Math.max(0, Math.min(100, hunger));
             health = Math.max(0, Math.min(100, health));
@@ -272,12 +360,18 @@
             } else {
                 document.getElementById('hunger-bar').classList.remove('high');
             }
+
+            localStorage.setItem('hunger', hunger.toString());
+            localStorage.setItem('health', health.toString());
+            localStorage.setItem('fun', fun.toString());
+            localStorage.setItem('money', money.toString());
         }
 
         let hunger;
         let health;
         let fun;
         let money;
+        let inventory;
         let time;
         let currentPlace;
         const cursorMessage = document.getElementById('follower-div');
@@ -345,52 +439,6 @@
             },
         ]
 
-        let food = [
-            {
-                id: 1,
-                name: "Papas Fritas",
-                price: "20",
-                replenish: "20"
-            },
-            {
-                id: 2,
-                name: "Hamburguesa",
-                price: "40",
-                replenish: "35"
-            },
-            {
-                id: 3,
-                name: "Carne Molida",
-                price: "30",
-                replenish: "25"
-            },
-            {
-                id: 4,
-                name: "Ensalada",
-                price: "10",
-                replenish: "10"
-            },
-            {
-                id: 5,
-                name: "Pastel de caramelo",
-                price: "70",
-                replenish: "55"
-            },
-            {
-                id: 6,
-                name: "Helado de chocolate",
-                price: "25",
-                replenish: "22"
-            },
-            {
-                id: 7,
-                name: "Taco de carne molida",
-                price: "50",
-                replenish: "40"
-            },
-        ]
-
-        //todo: port all the foods
         const marketItemsData = {
             'fries': {
                 name: 'Papas fritas',
@@ -399,25 +447,80 @@
             },
             'hamburguer': {
                 name: 'Hamburguesa',
-                price: 15,
-                hungerReplenish: 50,
+                price: 40,
+                hungerReplenish: 35,
             },
             'ground-meat': {
                 name: 'Carne Molida',
-                price: 10,
-                hungerReplenish: 0,
+                price: 30,
+                hungerReplenish: 25,
             },
             'salad': {
                 name: 'Ensalada',
-                price: 3,
-                hungerReplenish: 5,
+                price: 10,
+                hungerReplenish: 10,
+            },
+            'cake': {
+                name: 'Pastel de caramelo',
+                price: 70,
+                hungerReplenish: 55,
             },
             'ice-cream': {
-                name: 'Helado',
-                price: 7,
-                hungerReplenish: 10,
+                name: 'Helado de chocolate',
+                price: 25,
+                hungerReplenish: 22,
+            },
+            'taco': {
+                name: 'Taco de carne molida',
+                price: 50,
+                hungerReplenish: 40,
             }
         };
+
+        marketMenu.addEventListener('click', (event) => {
+            const clickedItem = event.target.closest('.market-item');
+
+            if (clickedItem) {
+                const itemId = clickedItem.id;
+                const itemData = marketItemsData[itemId];
+
+                if (itemData) {
+                    if (money >= itemData.price) {
+
+                        cursorMessage.textContent = "Has comprado " + itemData.name + '.';
+                        cursorMessage.classList.add('toggled-on')
+                        setTimeout(() => {
+                            cursorMessage.classList.remove('toggled-on')
+                        }, 1000);            
+
+                        money -= itemData.price;
+
+                        hunger = Math.max(0, Math.min(100, hunger));
+                        fun = Math.max(0, Math.min(100, fun));
+
+                        if (inventory[itemId]) {
+                            inventory[itemId]++;
+                        } else {
+                            inventory[itemId] = 1;
+                        }
+
+                        localStorage.setItem('inventory', JSON.stringify(inventory));
+
+                        updateStatsDisplay();
+                    } else {
+                        cursorMessage.textContent = 'No tienes suficiente dinero.';
+                        cursorMessage.classList.add('toggled-on')
+                        setTimeout(() => {
+                            cursorMessage.classList.remove('toggled-on')
+                        }, 3000);
+                    }
+
+                } else {
+                    console.warn(`No data found for market item with ID: ${itemId}`);
+                }
+            }
+        });
+
 
 
         window.onload = function() {
@@ -438,11 +541,36 @@
 
         function start(){
 
+            if (gameInterval !== null) {
+                clearInterval(gameInterval);
+            }
+
+            document.getElementById('musicmenu').classList.remove('toggled-on');
+            document.getElementById('musicmenu').style.display = 'none';
+
+            document.getElementById('out-menu').classList.remove('toggled-on');
+            document.getElementById('out-menu').style.display = 'none';
+
+            document.getElementById('options').classList.remove('toggled-on');
+
+            document.getElementById('marketmenu').style.display = 'none';
+            document.getElementById('inventorymenu').style.display = 'none';
+            document.getElementById('retry').classList.remove('toggled-on');
+            document.getElementById('messages').style.display = 'none';
+
+            showItems();
+
+            if(!localStorage.getItem('money')){
+                money = 50;
+            } else {
+                money = localStorage.getItem('money');
+            }
+
             hunger = localStorage.getItem('hunger') || 0;
             health = localStorage.getItem('health') || 100;
             fun = localStorage.getItem('fun') || 100;
-            money = localStorage.getItem('money') || 50;
             time = localStorage.getItem('time') || 0;
+            inventory = JSON.parse(localStorage.getItem('inventory')) || {};
             currentPlace = 'home';
             updateStatsDisplay() 
 
@@ -455,17 +583,14 @@
 
             document.getElementById('bear').style.display = "block";
 
-            let gameInterval = setInterval(() => {
+            gameInterval = setInterval(() => {
+                
                 if (hunger >= 100) {
                     health -= 3;
                     hunger = 100
                 } else {
                     hunger += 0.5;
                 };
-
-                if (health <= 0) {
-                    health = 0
-                }
 
                 if (fun <= 0 && hunger != 100) {
                     hunger += 1;
@@ -477,10 +602,12 @@
 
                 time ++
 
+                localStorage.setItem('money', money);
                 localStorage.setItem('hunger', hunger);
                 localStorage.setItem('fun', fun);
                 localStorage.setItem('health', health);
                 localStorage.setItem('time', time);
+
 
                 if (time == 21 && currentPlace == 'home') {
                     document.getElementById('sleep').classList.add('toggled-on');
@@ -492,168 +619,227 @@
                 }
 
                 updateStatsDisplay();
-                
-            }, 200);
 
-            document.getElementById('home').addEventListener("click", function(){
-                currentPlace = 'home';
-                if (time >= 20) {
-                    changeBackgroundBlack('./backgrounds/home-night.png');
-                    setTimeout(() => {
-                        document.getElementById('sleep').classList.add('toggled-on');
-                    }, 1500);
-                } else {
-                    changeBackgroundBlack('./backgrounds/home.png');
+
+                if (health <= 0) {
+                    clearInterval(gameInterval);
+                    gameInterval = null;
+                    localStorage.removeItem('money');
+                    localStorage.removeItem('inventory');
+                    localStorage.removeItem('hunger');
+                    localStorage.removeItem('fun');
+                    localStorage.removeItem('health');
+                    localStorage.removeItem('time');
+                    hideItems();
+                    document.getElementById('retry').classList.add('toggled-on');
                 }
-            });
-
-            document.getElementById('market').addEventListener("click", function(){
-                if (time >= 20) {
-                   cursorMessage.textContent = 'La tienda está cerrada.';
-                    cursorMessage.classList.add('toggled-on')
-                    setTimeout(() => {
-                        cursorMessage.classList.remove('toggled-on')
-                    }, 3000);
-                } else {
-                    currentPlace = 'market';
-                    changeBackgroundBlack('./backgrounds/market.png');
-                    setTimeout(() => {
-                        hideItems()
-                        document.getElementById('marketmenu').style.display = 'flex'
-                    }, 1500);
-                }
-            });
-
-            document.getElementById('optionstoggle').addEventListener("click", function(){
-                document.getElementById('optionstoggle').classList.toggle('toggled-on');
-                document.getElementById('options').classList.toggle('toggled-on');
-            });
+            }, 5000);
+        }
 
 
-            document.getElementById('speakers').addEventListener("click", function(){
-                document.getElementById('musicmenu').classList.toggle('toggled-on');
-            });
+        document.getElementById('retry').addEventListener("click", function(){
+            changeBackgroundBlack('./backgrounds/home.png');
+            document.getElementById('retry').classList.remove('toggled-on');
+            setTimeout(() => {
+                localStorage.removeItem('money');
+                localStorage.removeItem('inventory');
+                localStorage.removeItem('hunger');
+                localStorage.removeItem('fun');
+                localStorage.removeItem('health');
+                localStorage.removeItem('time');
+                start();
+            }, 1500);
+        });
 
-            document.getElementById('books').addEventListener('click', () => {
-                if (money >= activities[1].price) {
-                    fun += activities[1].replenish;
-                    money -= activities[1].price;
-                    localStorage.setItem('money', money);
-                    updateStatsDisplay();
-                } else {
-                    cursorMessage.textContent = 'No tienes suficiente dinero!';
-                    cursorMessage.classList.add('toggled-on')
-                    setTimeout(() => {
-                        cursorMessage.classList.remove('toggled-on')
-                    }, 3000);
-                }
-            });
-
-
-            document.getElementById('sleep').addEventListener("click", function(){
-                time = 0;
+        document.getElementById('home').addEventListener("click", function(){
+            currentPlace = 'home';
+            if (time >= 20) {
+                changeBackgroundBlack('./backgrounds/home-night.png');
+                setTimeout(() => {
+                    document.getElementById('sleep').classList.add('toggled-on');
+                }, 1500);
+            } else {
                 changeBackgroundBlack('./backgrounds/home.png');
-                document.getElementById('sleep').classList.remove('toggled-on');
+            }
+        });
 
-            });
+        document.getElementById('market').addEventListener("click", function(){
+            if (time >= 20) {
+                cursorMessage.textContent = 'La tienda está cerrada.';
+                cursorMessage.classList.add('toggled-on')
+                setTimeout(() => {
+                    cursorMessage.classList.remove('toggled-on')
+                }, 3000);
+            } else {
+                currentPlace = 'market';
+                changeBackgroundBlack('./backgrounds/market.png');
+                setTimeout(() => {
+                    hideItems()
+                    document.getElementById('marketmenu').style.display = 'flex'
+                }, 1500);
+            }
+        });
 
-            document.getElementById('shoes').addEventListener("click", function(){
-                document.getElementById('out-menu').classList.toggle('toggled-on');
-            });
+        document.getElementById('inventory').addEventListener("click", function(){
+            displayInventory();
+            hideItems();
+        });
 
-            document.getElementById('walk').addEventListener("click", function(){
+        closeInventoryBtn.addEventListener('click', () => {
+            inventoryMenu.style.display = 'none';
+            showItems();
+        });
+        document.getElementById('optionstoggle').addEventListener("click", function(){
+            document.getElementById('optionstoggle').classList.toggle('toggled-on');
+            document.getElementById('options').classList.toggle('toggled-on');
+        });
+
+
+        document.getElementById('speakers').addEventListener("click", function(){
+            document.getElementById('musicmenu').classList.toggle('toggled-on');
+        });
+
+        document.getElementById('books').addEventListener('click', () => {
+            if (money >= activities[1].price) {
+                fun += activities[1].replenish;
+                money -= activities[1].price;
+                localStorage.setItem('money', money);
+                updateStatsDisplay();
+            } else {
+                cursorMessage.textContent = 'No tienes suficiente dinero!';
+                cursorMessage.classList.add('toggled-on')
+                setTimeout(() => {
+                    cursorMessage.classList.remove('toggled-on')
+                }, 3000);
+            }
+        });
+
+
+        document.getElementById('sleep').addEventListener("click", function(){
+            time = 0;
+            changeBackgroundBlack('./backgrounds/home.png');
+            document.getElementById('sleep').classList.remove('toggled-on');
+        });
+
+        document.getElementById('shoes').addEventListener("click", function(){
+            document.getElementById('out-menu').classList.toggle('toggled-on');
+        });
+
+        document.getElementById('back').addEventListener("click", function(){
+            if (time >= 20) {
+                changeBackgroundBlack('./backgrounds/home-night.png');
+            } else {
+                changeBackgroundBlack('./backgrounds/home.png');    
+            }
+            currentPlace = 'home';
+            setTimeout(() => {
+                showItems();
+                document.getElementById('marketmenu').style.display = 'none'
                 if (time >= 20) {
-                    cursorMessage.textContent = 'Es muy tarde para salir.';
-                    cursorMessage.classList.add('toggled-on');
-                    setTimeout(() => {
-                        cursorMessage.classList.remove('toggled-on');
-                    }, 3000);
-                } else {
-                    document.getElementById('out-menu').classList.remove('toggled-on');
-                    currentPlace = 'outside';
-                    changeBackgroundBlack('./backgrounds/outside.png');
-
-                    setTimeout(() => {
-                        hideItems()
-                    }, 1500);
-
-                    setTimeout(() => {
-                        fun += activities[0].replenish;
-
-                        if (time >= 20) {
-                            changeBackgroundBlack('./backgrounds/home-night.png');
-                        } else {
-                            changeBackgroundBlack('./backgrounds/home.png');
-                        }
-
-                        setTimeout(() => {
-                            showItems();
-                            if (time >= 20) {
-                                document.getElementById('sleep').classList.add('toggled-on');
-                            }
-                        }, 1500);
-                    }, 6000);
+                    document.getElementById('sleep').classList.add('toggled-on')
                 }
-            });
+            }, 1500);
+        });
 
-            document.getElementById('work').addEventListener("click", function(){
-                if (time >= 20) {
-                    cursorMessage.textContent = 'Es muy tarde para trabajar.';
-                    cursorMessage.classList.add('toggled-on');
-                    setTimeout(() => {
-                        cursorMessage.classList.remove('toggled-on');
-                    }, 3000);
-                } else {
-                    currentPlace = 'work';
-                    changeBackgroundBlack('./backgrounds/work.png');
+        document.getElementById('walk').addEventListener("click", function(){
+            if (time >= 20) {
+                cursorMessage.textContent = 'Es muy tarde para salir.';
+                cursorMessage.classList.add('toggled-on');
+                setTimeout(() => {
+                    cursorMessage.classList.remove('toggled-on');
+                }, 3000);
+            } else {
+                document.getElementById('out-menu').classList.remove('toggled-on');
+                currentPlace = 'outside';
+                changeBackgroundBlack('./backgrounds/outside.png');
+
+                setTimeout(() => {
+                    hideItems()
+                }, 1500);
+
+                setTimeout(() => {
+                    fun += activities[0].replenish;
+                    currentPlace = 'home';
+                    if (time >= 20) {
+                        changeBackgroundBlack('./backgrounds/home-night.png');
+                    } else {
+                        changeBackgroundBlack('./backgrounds/home.png');
+                    }
 
                     setTimeout(() => {
-                        hideItems()
-                    }, 1500);
-
-                    setTimeout(() => {
-                        money += 100
-                        localStorage.setItem('money', money);
+                        showItems();
                         if (time >= 20) {
-                            changeBackgroundBlack('./backgrounds/home-night.png');
-                        } else {
-                            changeBackgroundBlack('./backgrounds/home.png');    
+                            document.getElementById('sleep').classList.add('toggled-on');
                         }
-                        setTimeout(() => {
-                            showItems()
-                            if (time >= 20) {
-                                document.getElementById('sleep').classList.add('toggled-on');
-                            }
-                        }, 1500);
-                    }, 6000);
-                }
+                    }, 1500);
+                }, 6000);
+            }
+        });
 
-            });
+        document.getElementById('work').addEventListener("click", function(){
+            if (time >= 20) {
+                cursorMessage.textContent = 'Es muy tarde para trabajar.';
+                cursorMessage.classList.add('toggled-on');
+                setTimeout(() => {
+                    cursorMessage.classList.remove('toggled-on');
+                }, 3000);
+            } else {
+                currentPlace = 'work';
+                changeBackgroundBlack('./backgrounds/work.png');
 
-            function hideItems(){
-                document.getElementById('books').style.display = 'none';
-                document.getElementById('optionstoggle').style.display = 'none';
-                document.getElementById('options').style.display = 'none';
-                document.getElementById('speakers').style.display = 'none';
-                document.getElementById('shoes').style.display = 'none';
-                document.getElementById('work').style.display = 'none';
-                document.getElementById('market').style.display = 'none';
-                document.getElementById('paint').style.display = 'none';
-                document.getElementById('inventory').style.display = 'none';
+                setTimeout(() => {
+                    hideItems()
+                }, 1500);
+
+                setTimeout(() => {
+                    money += 100
+                    localStorage.setItem('money', money);
+                    currentPlace = 'home';
+                    if (time >= 20) {
+                        changeBackgroundBlack('./backgrounds/home-night.png');
+                    } else {
+                        changeBackgroundBlack('./backgrounds/home.png');    
+                    }
+                    setTimeout(() => {
+                        showItems();
+                        if (time >= 20) {
+                            document.getElementById('sleep').classList.add('toggled-on');
+                        }
+                    }, 1500);
+                }, 6000);
             }
 
-            function showItems(){
-                document.getElementById('books').style.display = '';
-                document.getElementById('optionstoggle').style.display = '';
-                document.getElementById('options').style.display = '';
-                document.getElementById('speakers').style.display = '';
-                document.getElementById('shoes').style.display = '';
-                document.getElementById('work').style.display = '';
-                document.getElementById('market').style.display = '';
-                document.getElementById('paint').style.display = '';
-                document.getElementById('inventory').style.display = '';
-            }
-            
+        });
+
+
+        function hideItems(){
+            document.getElementById('books').style.display = 'none';
+            document.getElementById('optionstoggle').style.display = 'none';
+            document.getElementById('options').style.display = 'none';
+            document.getElementById('speakers').style.display = 'none';
+            document.getElementById('musicmenu').style.display = 'none';
+            document.getElementById('shoes').style.display = 'none';
+            document.getElementById('out-menu').style.display = 'none';
+            document.getElementById('sleep').style.display = 'none';
+            document.getElementById('work').style.display = 'none';
+            document.getElementById('market').style.display = 'none';
+            document.getElementById('paint').style.display = 'none';
+            document.getElementById('inventory').style.display = 'none';
+        }
+
+        function showItems(){
+            document.getElementById('books').style.display = '';
+            document.getElementById('optionstoggle').style.display = '';
+            document.getElementById('options').style.display = '';
+            document.getElementById('speakers').style.display = '';
+            document.getElementById('musicmenu').style.display = '';
+            document.getElementById('shoes').style.display = '';
+            document.getElementById('out-menu').style.display = '';
+            document.getElementById('sleep').style.display = '';
+            document.getElementById('work').style.display = '';
+            document.getElementById('market').style.display = '';
+            document.getElementById('paint').style.display = '';
+            document.getElementById('inventory').style.display = '';
         }
 
     </script>

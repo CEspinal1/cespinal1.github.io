@@ -91,6 +91,26 @@ body {
     z-index: 2;
 }
 
+#retry {
+    display: flex;
+    position: absolute;
+    top: 40%;
+    left: 46%;
+    font-size: 30px;
+    border-radius: 10px;
+    color: #333;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#retry.toggled-on {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
 #sleep {
     display: flex;
     position: absolute;
@@ -99,7 +119,6 @@ body {
     font-size: 30px;
     border-radius: 10px;
     color: #333;
-
 
     opacity: 0;
     visibility: hidden;
@@ -519,6 +538,81 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+#inventorymenu {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(60, 60, 80, 0.95);
+    color: white;
+    width: 800px;
+    height: 500px;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+#inventorymenu h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #ffd700;
+}
+
+#inventory-list {
+    flex-grow: 1;
+    width: 95%;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inventory-item {
+    background-color: rgba(90, 90, 120, 0.7);
+    padding: 8px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+    min-height: 40px;
+}
+
+.inventory-item .item-name {
+    font-weight: bold;
+}
+
+.inventory-item .item-quantity {
+    background-color: #4CAF50;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    margin-left: 15px;
+}
+
+#inventorymenu #closeInventoryBtn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.2s ease;
+}
+
+#inventorymenu #closeInventoryBtn:hover {
+    background-color: #d32f2f;
+}
+
 #marketmenu {
     display: none;
     flex-direction: row;
@@ -551,6 +645,19 @@ body {
     border-radius: 10px;
     padding: 10px;
     flex-shrink: 0;
+}
+
+#marketmenu #back {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 30px;
+    width: 40px;
+    height: 40px;
+    background-color: #ff0000;
+    border-radius: 5px;
+    flex-shrink: 0;
+    border-style: none;
 }
 
 #marketmenu div h1 {
